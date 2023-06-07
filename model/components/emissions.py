@@ -252,5 +252,11 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
             GlobalInitConstraint(lambda m: m.emission_relative_cumulative[0] == 1),
         ]
     )
+    
+    
+    # Burden sharing
+    
+    m.burden_sharing_ecpc_debt = Param(m.regions)
+    
 
     return constraints

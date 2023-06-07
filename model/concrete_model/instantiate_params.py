@@ -154,6 +154,7 @@ class InstantiatedModel:
             ),
             "MAC_beta": V(params["economics"]["MAC"]["beta"]),
             "MAC_scaling_factor": self.regional_param_store.get("MAC", "kappa"),
+            "burden_sharing_ecpc_debt": self.regional_param_store.get("burdensharing", "Debt"),
             "init_capitalstock_factor": self.regional_param_store.get(
                 "economics", "init_capital_factor"
             ),

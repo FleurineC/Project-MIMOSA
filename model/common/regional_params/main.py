@@ -59,6 +59,7 @@ class RegionalParamStore:
                 "economics.csv", "IMAGE26", regiontype_output
             ),
             "MAC": RegionalParamContainer("mac.csv", "IMAGE26", regiontype_output),
+            "burdensharing": RegionalParamContainer("burdensharing.csv", "IMAGE26", regiontype_output),
             "ADRICE2010": RegionalParamContainer(
                 "ADRICE2010.csv", "ADRICE2010", regiontype_output
             ),
