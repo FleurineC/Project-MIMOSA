@@ -257,6 +257,6 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
     # Burden sharing
     
     m.burden_sharing_ecpc_debt = Param(m.regions)
-    
+    m.burden_sharing_pop_fraction = Param(m.regions)
 
     return constraints
