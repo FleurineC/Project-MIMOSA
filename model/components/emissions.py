@@ -258,5 +258,12 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
     
     m.burden_sharing_ecpc_debt = Param(m.regions)
     m.burden_sharing_pop_fraction = Param(m.regions)
-
+    #Global carbon budget,)
+    m.global_carbon_budget = Var(m.t, units=quant.unit("emissions_unit"))
+    constraints.extend(
+        [
+            GlobalInitConstraint(lambda m: m.global_carbon_budget[0] == 
+                                 m.cumulative_emissions[m.tf])
+        ]
+    )
     return constraints
