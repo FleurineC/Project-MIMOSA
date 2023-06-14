@@ -157,6 +157,8 @@ class InstantiatedModel:
             "burden_sharing_ecpc_debt": self.regional_param_store.get("burdensharing", "Debt"),
             "burden_sharing_pop_fraction": self.regional_param_store.get(
                 "burdensharing", "pop_fraction"),
+            "burden_sharing_GDP_per_capita_fraction": self.regional_param_store.get(
+                "burdensharing", "GDP_per_capita_fraction"),
             "init_capitalstock_factor": self.regional_param_store.get(
                 "economics", "init_capital_factor"
             ),
