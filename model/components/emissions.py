@@ -259,20 +259,16 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
     m.burden_sharing_ecpc_debt = Param(m.regions)
     m.burden_sharing_pop_fraction = Param(m.regions)
     #Global carbon budget,)
-    m.global_carbon_budget = Var(units=quant.unit("emissions_unit"))
-    constraints.extend(
-        [
-            GlobalInitConstraint(lambda m: m.global_carbon_budget == 
-                                 m.cumulative_emissions[m.tf])
-            #just a single number per run
-        ]
-    )
-   # m.ECPC = Var(m.regions, units=quant.unit("emissions_unit"))
+
+    #reallocation of global carbon budget following ECPC
+    #variable needs to be applied to regional emissions somehow
+    
+    #m.ECPC = Var(m.regions, units=quant.unit("emissions_unit"))
     #constraints.extend(
         #[
             #RegionalInitConstraint(
-                #lambda m, r: m.ECPC[r] == 
-                #(m.burden_sharing_pop_fraction[r] * m.global_carbon_budget(m.beginyear) + m.burden_sharing_ecpc_debt[r]))
+            #lambda m, r: m.ECPC[r] == 
+            #(m.burden_sharing_pop_fraction[r] * m.global_carbon_budget + m.burden_sharing_ecpc_debt[r]))
         #]
     #)
     return constraints

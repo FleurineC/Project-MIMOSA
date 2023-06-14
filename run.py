@@ -7,4 +7,4 @@ params["emissions"]["carbonbudget"] = False
 
 model1 = MIMOSA(params)
 model1.solve()
-model1.save("ECPC run")
+model1.save("ECPC1")
