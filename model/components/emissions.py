@@ -284,8 +284,11 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
             RegionalInitConstraint(lambda m, r: m.ECPC[0, r] == 
             (m.burden_sharing_pop_fraction[r] * m.cumulative_emissions[m.tf]) + m.burden_sharing_ecpc_debt[r]
             if value(m.burden_sharing_regime) == "ECPC" 
-            else Constraint.Skip)
-            
+            else Constraint.Skip),
+            RegionalInitConstraint(
+            lambda m, r: m.ECPC[0, r] >= m.regional_cumulative_emissions[m.tf, r]
+            if value(m.burden_sharing_regime) == "ECPC" 
+            else Constraint.Skip),                        
         ]
     )
     
