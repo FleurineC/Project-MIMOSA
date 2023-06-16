@@ -366,6 +366,20 @@ emissions:
     regional:
       <<: *inertia_description
       default: -0.05
+      
+  # Burden sharing
+  burden_sharing_regime:
+    descr: Burden sharing ///....
+    type: enum
+    values:
+      - IEPC
+      - GF
+      - PCC
+      - ECPC
+      - AP
+      - GDR
+    default: False
+    can_be_false: True
 
 ##################
 
