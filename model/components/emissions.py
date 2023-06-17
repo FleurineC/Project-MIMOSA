@@ -277,6 +277,33 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
     )
     #reallocation of global carbon budget following ECPC
     #variable needs to be applied to regional emissions somehow
+    m.IEPC = Var(m.t, m.regions, units=quant.unit("emissions_unit"))
+    constraints.extend(
+        [
+            RegionalInitConstraint(lambda m, r: m.IEPC[0, r] == 
+            (m.burden_sharing_pop_fraction[r] * m.cumulative_emissions[m.tf])
+            if value(m.burden_sharing_regime) == "IEPC" 
+            else Constraint.Skip), 
+            RegionalConstraint(
+            lambda m, t, r: m.IEPC[0, r] >= m.regional_cumulative_emissions[t, r]
+            if value(m.burden_sharing_regime) == "IEPC" 
+            else Constraint.Skip),
+        ]
+    )
+    
+    m.GF = Var(m.t, m.regions, units=quant.unit("emissions_unit"))
+    constraints.extend(
+        [
+            RegionalInitConstraint(lambda m, r: m.GF[0, r] == 
+            (m.burden_sharing_pop_fraction[r] * m.cumulative_emissions[m.tf])
+            if value(m.burden_sharing_regime) == "GF" 
+            else Constraint.Skip), 
+            RegionalConstraint(
+            lambda m, t, r: m.GF[0, r] >= m.regional_cumulative_emissions[t, r]
+            if value(m.burden_sharing_regime) == "GF" 
+            else Constraint.Skip),
+        ]
+    )
     
     m.ECPC = Var(m.t, m.regions, units=quant.unit("emissions_unit"))
     constraints.extend(
@@ -284,12 +311,14 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
             RegionalInitConstraint(lambda m, r: m.ECPC[0, r] == 
             (m.burden_sharing_pop_fraction[r] * m.cumulative_emissions[m.tf]) + m.burden_sharing_ecpc_debt[r]
             if value(m.burden_sharing_regime) == "ECPC" 
-            else Constraint.Skip),
-            RegionalInitConstraint(
-            lambda m, r: m.ECPC[0, r] >= m.regional_cumulative_emissions[m.tf, r]
+            else Constraint.Skip), 
+            RegionalConstraint(
+            lambda m, t, r: m.ECPC[0, r] >= m.regional_cumulative_emissions[t, r]
             if value(m.burden_sharing_regime) == "ECPC" 
-            else Constraint.Skip),                        
+            else Constraint.Skip),         
         ]
     )
+    
+    
     
     return constraints

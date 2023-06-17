@@ -4,8 +4,8 @@ from model.common.config import parseconfig
 
 params = parseconfig.load_params()
 params["emissions"]["carbonbudget"] = False
-params["emissions"]["burden_sharing_regime"] = "ECPC"
+params["emissions"]["burden_sharing_regime"] = "IEPC"
 
 model1 = MIMOSA(params)
 model1.solve()
-model1.save("ECPC1")
+model1.save("IEPC")
