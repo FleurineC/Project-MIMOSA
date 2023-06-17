@@ -260,6 +260,7 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
     m.burden_sharing_pop_fraction = Param(m.regions)
     m.burden_sharing_GDP_per_capita_fraction = Param(m.regions)
     m.regional_cumulative_emissions = Var(m.t, m.regions, units=quant.unit("emissions_unit"))
+    m.global_baseline = Var(m.t, units=quant.unit("emissions_unit"))
     m.burden_sharing_regime = Param()
     constraints.extend(
         [
@@ -272,10 +273,14 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
                 "regional_cumulative_emissions",
                 ),
             RegionalInitConstraint(
-                lambda m, r: m.regional_cumulative_emissions[0, r] == 0)
+                lambda m, r: m.regional_cumulative_emissions[0, r] == 0),
+            GlobalConstraint(
+                lambda m, t: m.global_baseline[t]
+                == sum(m.baseline[t, r] for r in m.regions)
+                )
         ]
     )
-    #reallocation of global carbon budget following ECPC
+
     #variable needs to be applied to regional emissions somehow
     m.IEPC = Var(m.t, m.regions, units=quant.unit("emissions_unit"))
     constraints.extend(
@@ -285,7 +290,7 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
             if value(m.burden_sharing_regime) == "IEPC" 
             else Constraint.Skip), 
             RegionalConstraint(
-            lambda m, t, r: m.IEPC[0, r] >= m.regional_cumulative_emissions[t, r]
+            lambda m, t, r: m.IEPC[0, r] >= m.regional_cumulative_emissions[m.tf, r]
             if value(m.burden_sharing_regime) == "IEPC" 
             else Constraint.Skip),
         ]
@@ -295,16 +300,17 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
     constraints.extend(
         [
             RegionalInitConstraint(lambda m, r: m.GF[0, r] == 
-            (m.burden_sharing_pop_fraction[r] * m.cumulative_emissions[m.tf])
+            ((m.regional_emissions[0, r]/m.global_emissions[0, r])
+             * m.cumulative_emissions[m.tf])
             if value(m.burden_sharing_regime) == "GF" 
             else Constraint.Skip), 
             RegionalConstraint(
-            lambda m, t, r: m.GF[0, r] >= m.regional_cumulative_emissions[t, r]
+            lambda m, t, r: m.GF[0, r] >= m.regional_cumulative_emissions[m.tf, r]
             if value(m.burden_sharing_regime) == "GF" 
             else Constraint.Skip),
         ]
     )
-    
+    #reallocation of global carbon budget following ECPC
     m.ECPC = Var(m.t, m.regions, units=quant.unit("emissions_unit"))
     constraints.extend(
         [
@@ -313,12 +319,13 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
             if value(m.burden_sharing_regime) == "ECPC" 
             else Constraint.Skip), 
             RegionalConstraint(
-            lambda m, t, r: m.ECPC[0, r] >= m.regional_cumulative_emissions[t, r]
+            lambda m, t, r: m.ECPC[0, r] >= m.regional_cumulative_emissions[m.tf, r]
             if value(m.burden_sharing_regime) == "ECPC" 
             else Constraint.Skip),         
         ]
     )
     
+    m.AP = Var(m.t, m.regions, units=quant.unit("emissions_unit"))
     
-    
+
     return constraints
