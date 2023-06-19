@@ -159,6 +159,8 @@ class InstantiatedModel:
                 "burdensharing", "pop_fraction"),
             "burden_sharing_GDP_per_capita_fraction": self.regional_param_store.get(
                 "burdensharing", "GDP_per_capita_fraction"),
+            "root_AP": self.regional_param_store.get("burdensharing", "root_AP"),
+            "sum_bau": self.regional_param_store.get("burdensharing", "sum_bau"),
             "burden_sharing_regime": V(params["emissions"]["burden_sharing_regime"]),
             "init_capitalstock_factor": self.regional_param_store.get(
                 "economics", "init_capital_factor"

@@ -261,8 +261,9 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
     m.burden_sharing_GDP_per_capita_fraction = Param(m.regions)
     m.regional_cumulative_emissions = Var(m.t, m.regions, units=quant.unit("emissions_unit"))
     m.global_baseline = Var(m.t, units=quant.unit("emissions_unit"))
-    #m.global_population = Var(m.t)
-    #m.global_GDP_gross = Var(m.t, units=quant.unit("trillion*usd/yr"))
+    m.global_GDP_gross = Var(m.t, units=quant.unit("trillion*usd/yr"))
+    m.root_AP = Param(m.regions)
+    m.sum_bau = Param(m.regions)
     m.burden_sharing_regime = Param()
     constraints.extend(
         [
@@ -280,14 +281,11 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
                 lambda m, t: m.global_baseline[t]
                 == sum(m.baseline[t, r] for r in m.regions)
                 ),
-            #GlobalConstraint(
-                #lambda m, t: m.global_population[t]
-                #== sum(m.population[t, r] for r in m.regions)
-                #),
-            #GlobalConstraint(
-                #lambda m, t: m.global_GDP_gross[t]
-                #== sum(m.GDP_gross[t, r] for r in m.regions)
-                #),            
+            GlobalConstraint(
+                lambda m, t: m.global_GDP_gross[t]
+                == sum(m.GDP_gross[t, r] for r in m.regions),
+                "global_GDP_gross"
+                ),            
         ]
     )
 
@@ -350,6 +348,19 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
     )
     
     m.AP = Var(m.t, m.regions, units=quant.unit("emissions_unit"))
-    
+    #bGDR = sum(baseline[t,r] for t)-(sum(global_baseline[t]-m.cumulative_emissions[m.tf])*(0.5/130))
+    m.GDR = Var(m.t, m.regions, units=quant.unit("emissions_unit"))
+    constraints.extend(
+        [
+            RegionalInitConstraint(lambda m, r: m.GDR[0, r] == 
+            sum(m.baseline[t, r] for t in m.t) - (sum((m.global_baseline[t] for t in m.t)-m.cumulative_emissions[m.tf])*(0.5/130))
+            if value(m.burden_sharing_regime) == "GDR" 
+            else Constraint.Skip), 
+            RegionalConstraint(
+            lambda m, t, r: m.GDR[0, r] >= m.regional_cumulative_emissions[m.tf, r]
+            if value(m.burden_sharing_regime) == "GDR" 
+            else Constraint.Skip),         
+        ]
+    )
 
     return constraints
