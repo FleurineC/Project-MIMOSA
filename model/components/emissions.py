@@ -320,6 +320,20 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
             else Constraint.Skip),
         ]
     )
+    m.PCC = Var(m.t, m.regions, units=quant.unit("emissions_unit"))
+    constraints.extend(
+        [
+            RegionalInitConstraint(lambda m, r: m.PCC[0, r] == 
+            (1-0.5)*((m.regional_emissions[0, r]/m.global_emissions[0])
+             * m.cumulative_emissions[m.tf])+0.5*(m.burden_sharing_pop_fraction[r] * m.cumulative_emissions[m.tf])
+            if value(m.burden_sharing_regime) == "PCC" 
+            else Constraint.Skip), 
+            RegionalConstraint(
+            lambda m, t, r: m.PCC[0, r] >= m.regional_cumulative_emissions[m.tf, r]
+            if value(m.burden_sharing_regime) == "PCC" 
+            else Constraint.Skip),
+        ]
+    )
     #reallocation of global carbon budget following ECPC
     m.ECPC = Var(m.t, m.regions, units=quant.unit("emissions_unit"))
     constraints.extend(
