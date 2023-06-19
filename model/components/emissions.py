@@ -260,7 +260,9 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
     m.burden_sharing_pop_fraction = Param(m.regions)
     m.burden_sharing_GDP_per_capita_fraction = Param(m.regions)
     m.regional_cumulative_emissions = Var(m.t, m.regions, units=quant.unit("emissions_unit"))
-    m.global_baseline = Var(m.t, units=quant.unit("emissions_unit"))
+    #m.global_baseline = Var(m.t, units=quant.unit("emissions_unit"))
+    #m.global_population = Var(m.t)
+    #m.global_GDP_gross = Var(m.t, units=quant.unit("trillion*usd/yr"))
     m.burden_sharing_regime = Param()
     constraints.extend(
         [
@@ -274,10 +276,18 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
                 ),
             RegionalInitConstraint(
                 lambda m, r: m.regional_cumulative_emissions[0, r] == 0),
-            GlobalConstraint(
-                lambda m, t: m.global_baseline[t]
-                == sum(m.baseline[t, r] for r in m.regions)
-                )
+            #GlobalConstraint(
+                #lambda m, t: m.global_baseline[t]
+                #== sum(m.baseline[t, r] for r in m.regions)
+                #),
+            #GlobalConstraint(
+                #lambda m, t: m.global_population[t]
+                #== sum(m.population[t, r] for r in m.regions)
+                #),
+            #GlobalConstraint(
+                #lambda m, t: m.global_GDP_gross[t]
+                #== sum(m.GDP_gross[t, r] for r in m.regions)
+                #),            
         ]
     )
 
@@ -300,7 +310,7 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
     constraints.extend(
         [
             RegionalInitConstraint(lambda m, r: m.GF[0, r] == 
-            ((m.regional_emissions[0, r]/m.global_emissions[0, r])
+            ((m.regional_emissions[0, r]/m.global_emissions[0])
              * m.cumulative_emissions[m.tf])
             if value(m.burden_sharing_regime) == "GF" 
             else Constraint.Skip), 
