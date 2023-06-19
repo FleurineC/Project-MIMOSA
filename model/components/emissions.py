@@ -348,6 +348,29 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
     )
     
     m.AP = Var(m.t, m.regions, units=quant.unit("emissions_unit"))
+    m.corr = Var(m.t, initialize=1)
+    m.rbAP = Var(m.t, m.regions)
+    constraints.extend(
+        [
+            RegionalInitConstraint(lambda m, r: m.rbAP[0, r] ==
+            m.root_AP[r]*((1706.1036669999999-m.cumulative_emissions[m.tf])/
+                           1706.1036669999999)*m.sum_bau[r]
+            if value(m.burden_sharing_regime) == "AP" 
+            else Constraint.Skip),
+            GlobalInitConstraint(lambda m: m.corr[0] ==
+            sum(m.rbAP[0, r] for r in m.regions)/(1706.1036669999999-m.cumulative_emissions[m.tf])
+            if value(m.burden_sharing_regime) == "AP" 
+            else Constraint.Skip),
+            RegionalInitConstraint(lambda m, r: m.AP[0, r] == 
+            m.sum_bau[r] - (m.rbAP[0, r]/m.corr[0])
+            if value(m.burden_sharing_regime) == "AP" 
+            else Constraint.Skip), 
+            RegionalConstraint(
+            lambda m, t, r: m.AP[0, r] >= m.regional_cumulative_emissions[m.tf, r]
+            if value(m.burden_sharing_regime) == "AP" 
+            else Constraint.Skip),         
+        ]
+    )
     #bGDR = sum(baseline[t,r] for t)-(sum(global_baseline[t]-m.cumulative_emissions[m.tf])*(0.5/130))
     m.GDR = Var(m.t, m.regions, units=quant.unit("emissions_unit"))
     constraints.extend(
