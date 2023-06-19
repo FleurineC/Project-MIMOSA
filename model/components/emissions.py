@@ -353,7 +353,7 @@ def get_constraints(m: AbstractModel) -> Sequence[GeneralConstraint]:
     constraints.extend(
         [
             RegionalInitConstraint(lambda m, r: m.GDR[0, r] == 
-            sum(m.baseline[t, r] for t in m.t) - (sum((m.global_baseline[t] for t in m.t)-m.cumulative_emissions[m.tf])*(0.5/130))
+            m.sum_bau[r] - (1706.1036669999999-m.cumulative_emissions[m.tf])*(0.5/130)
             if value(m.burden_sharing_regime) == "GDR" 
             else Constraint.Skip), 
             RegionalConstraint(
